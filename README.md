@@ -40,14 +40,8 @@ my assumption is that this piece of code is going to be evaluated by experts and
 
 - chronological order does not matter for deposits/withdrawals. the sum, even after resolving disputes must be the same regardless of ordering.
 
-- resolve + chargeback referencing the same transaction -> file order decides what is applied?  
-  -> *assumption*: chronological order matters for disputes. if a transaction is disputed it matters if it is first resolved or charged back. whatever comes first invalidates what comes after.
+- chronological order does matter for disputes. if a transaction is disputed it matters if it is first resolved or charged back. whatever comes first invalidates what comes after.
 
-- do incoming transaction still change funds after an account was frozen or are transactions afterwards rejected?  
-  -> *assumption*: per definition, no transactions can be made after an account was frozen so all transactions afterwards will be rejected.
+- a frozen account does not allow ANY other transactions, including other chargebacks. this further assumes that chargebacks are not inevitable facts coming from another party, otherwise they would still have to be deducted after an account was frozen.
 
-- negative deposit/withdrawal - invalid transaction -> Reject?  
-  -> *assumption*: negative values are invalid and will be rejected.
-
-- can someone dispute a dispute? or dispute a resolve/chargeback?  
-  -> *assumption*: has a lot of complex scenarios that would have at least to be mentioned in the procedure description and how to handle them correctly -> ignoring transactions of this kind.
+- negative values for deposits and withdrawals are invalid and will be rejected.
