@@ -5,7 +5,11 @@ logging to the console is not possible due to the requirements to deliver the re
 
 ## type safety
 all transactions are parsed into spezializations that only expose the allowed fields. this way e.g. accessing the amount field with a dispute transaction is impossible.  
-special care was given to not expose mutable states where they are not needed to avoid accidental sideeffects.
+special care was given to not expose mutable states where they are not needed to avoid accidental side effects.  
+complex behaviors are always hidden behind at least one layer of abstraction
+another important aspect is the "single source of truth". states must only ever defined by one set of data for one specific point in time.  
+an example would be the "try_into" implementations for the transaction types, which take ownership of the parsed transaction and transforms it into its specialization without ever allowing to access both.
+another example is the "Funds" struct that makes sure that the total is always calculated instead of directly set to avoid impossible states.
 
 ## robustness
 no unsafe transforms or direct unwraps/casts are used in the production part of the code (unwrapping in tests is fine as tests count as failed if a panic occurs).  
