@@ -10,3 +10,9 @@ resolve, 2, 2
 deposit, 3, 3, 3
 dispute, 3, 3
 chargeback, 3, 3
+
+deposit, 4, 4, 4
+dispute, 4, 4
+resolve, 4, 4
+dispute, 4, 4
+chargeback, 4, 4

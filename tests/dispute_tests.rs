@@ -30,6 +30,13 @@ fn valid_deposite_dispute_test() {
   assert_eq!(funds_client3.available, Decimal::new(0, 4)); // available: 0
   assert_eq!(funds_client3.held, Decimal::new(0, 4)); // held: 0
   assert!(account_storage.get_mut(3).is_frozen()); // this account must be frozen
+
+  // resolved and then charged back
+  let funds_client4 = account_storage.get_mut(4).get_funds();
+  assert_eq!(funds_client4.get_total(), Decimal::new(0, 4)); // total: 0
+  assert_eq!(funds_client4.available, Decimal::new(0, 4)); // available: 0
+  assert_eq!(funds_client4.held, Decimal::new(0, 4)); // held: 0
+  assert!(account_storage.get_mut(4).is_frozen()); // this account must be frozen
 }
 
 #[test]
