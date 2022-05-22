@@ -9,13 +9,14 @@ special care was given to not expose mutable states where they are not needed to
 
 ## robustness
 no unsafe transforms or direct unwraps/casts are used in the production part of the code (unwrapping in tests is fine as tests count as failed if a panic occurs).  
+the libraries that have been used are all staples of the rust community.  
 there are several unit tests making sure that the program behaves correctly, even under pressure.  
 disclaimer: i had to remove the larger test cases to keep the repository at a reasonable size.
 
 ## efficiency
-the parsing has a line-by-line approach and should thus not load the whole file into memory.
-deposits and withdrawals have to be kept in memory after parsing because they can be referenced by dispute transactions later on.
-in order to be able to throw away dispute/resolve/chargeback transactions after applying their data, deposits and withdrawals are stored with flags to show their dispute status instead.
+the parsing has a line-by-line approach and should thus not load the whole file into memory.  
+deposits and withdrawals have to be kept in memory after parsing because they can be referenced by dispute transactions later on.  
+in order to be able to throw away dispute/resolve/chargeback transactions after applying their data, deposits and withdrawals are stored with flags to show their dispute status instead.  
 there are opportunities to avoid copies still in the code, but they are mostly done this way to keep the code safe and/or readable.
 
 ## parallelization
@@ -24,7 +25,11 @@ because the order of the transactions overall matters (at least thats what i ass
 pre-sorting the transactions to each account and doing the calculations for each account balance in a threadpool would in theory be possible but, because of all the batching and distribution effort, this is not really worth it, especially considering that multiple instances of the program would run on a server which then again means that the cores are exhausted anyway.
 
 ## clean code
-in order to stay on the stable branch of rust i had to refrain from using some features that would increase the overall readability e.g. [let..else](https://rust-lang.github.io/rfcs/3137-let-else.html) with early returns.
+in order to stay on the stable branch of rust i had to refrain from using some features that would increase the overall readability e.g. [let..else](https://rust-lang.github.io/rfcs/3137-let-else.html) with early returns.  
+overall the files are a little bit longer than i would usually prefer but i tried to comply with the standards the Rust community is setting which is leaving connected structs and functions mostly in the same file.  
+i am adaptable in that regard and will tune my style towards the context of the team i am working with.  
+my assumption is that this piece of code is going to be evaluated by experts and it was also written under that assumption. that means i did not comment on things i feel are obvious as the code should speak for itself in most cases.
+
 
 ### assumptions:
 - account states do not have to be persisted apart from printing it to std::out.
