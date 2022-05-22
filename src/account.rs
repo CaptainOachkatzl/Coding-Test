@@ -6,7 +6,7 @@ use rust_decimal::Decimal;
 
 use crate::{BalanceTransaction, Chargeback, Deposit, Dispute, Resolve, Transaction, TransactionType, Withdrawal};
 
-const TRANSACTION_NOT_FOUND: &str = "referenced transaction not found -> partner error";
+const TRANSACTION_NOT_FOUND: &str = "partner error - referenced transaction not found";
 
 #[derive(Clone, Copy)]
 pub struct Funds {
@@ -53,14 +53,15 @@ impl Account {
   pub fn add_transaction(&mut self, transaction: Transaction) {
     if self.is_frozen() {
       error!(
-        "unable to add transaction {} because account is frozen",
-        transaction.tx_id
+        "unable to handle transaction {} for account {}: account is frozen",
+        transaction.tx_id,
+        transaction.client_id,
       );
       return;
     }
 
     if let Err(err) = self.add_transaction_as_converted(transaction) {
-      error!("transaction {} error: {}", transaction.tx_id, err);
+      error!("unable to handle transaction {} for account {}: {}", transaction.tx_id, transaction.client_id, err);
     }
   }
 
