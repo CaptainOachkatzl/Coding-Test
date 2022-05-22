@@ -4,9 +4,7 @@ use anyhow::{bail, Result};
 use log::error;
 use rust_decimal::Decimal;
 
-use crate::{
-  BalanceTransaction, Chargeback, Deposit, Dispute, DisputeStatus, Resolve, Transaction, TransactionType, Withdrawal,
-};
+use crate::{BalanceTransaction, Chargeback, Deposit, Dispute, Resolve, Transaction, TransactionType, Withdrawal};
 
 const TRANSACTION_NOT_FOUND: &str = "referenced transaction not found -> partner error";
 
@@ -31,7 +29,7 @@ impl Funds {
 
 pub struct Account {
   funds: Funds,
-  balance_transactions: HashMap<u32, (DisputeStatus, Box<dyn BalanceTransaction>)>,
+  balance_transactions: HashMap<u32, Box<dyn BalanceTransaction>>,
   frozen: bool,
 }
 
@@ -91,9 +89,7 @@ impl Account {
     let amount = deposit.get_amount();
 
     self.funds.available += amount;
-    self
-      .balance_transactions
-      .insert(deposit.get_tx_id(), (DisputeStatus::new(), Box::new(deposit)));
+    self.balance_transactions.insert(deposit.get_tx_id(), Box::new(deposit));
     Ok(())
   }
 
@@ -107,14 +103,13 @@ impl Account {
     self.funds.available -= amount;
     self
       .balance_transactions
-      .insert(withdrawal.get_tx_id(), (DisputeStatus::new(), Box::new(withdrawal)));
+      .insert(withdrawal.get_tx_id(), Box::new(withdrawal));
     Ok(())
   }
 
   fn handle_dispute(&mut self, dispute: &Dispute) -> Result<()> {
-    if let Some((dispute_status, balance_transaction)) = self.balance_transactions.get_mut(&dispute.get_tx_id()) {
-      dispute_status.dispute()?;
-      balance_transaction.handle_dispute(&mut self.funds);
+    if let Some(balance_transaction) = self.balance_transactions.get_mut(&dispute.get_tx_id()) {
+      balance_transaction.dispute(&mut self.funds)?;
       Ok(())
     } else {
       bail!(TRANSACTION_NOT_FOUND);
@@ -122,9 +117,8 @@ impl Account {
   }
 
   fn handle_resolve(&mut self, resolve: &Resolve) -> Result<()> {
-    if let Some((dispute_status, balance_transaction)) = self.balance_transactions.get_mut(&resolve.get_tx_id()) {
-      dispute_status.resolve()?;
-      balance_transaction.handle_resolve(&mut self.funds);
+    if let Some(balance_transaction) = self.balance_transactions.get_mut(&resolve.get_tx_id()) {
+      balance_transaction.resolve(&mut self.funds)?;
       Ok(())
     } else {
       bail!(TRANSACTION_NOT_FOUND);
@@ -132,9 +126,8 @@ impl Account {
   }
 
   fn handle_chargeback(&mut self, chargeback: &Chargeback) -> Result<()> {
-    if let Some((dispute_status, balance_transaction)) = self.balance_transactions.get_mut(&chargeback.get_tx_id()) {
-      dispute_status.chargeback()?;
-      balance_transaction.handle_chargeback(&mut self.funds);
+    if let Some(balance_transaction) = self.balance_transactions.get_mut(&chargeback.get_tx_id()) {
+      balance_transaction.chargeback(&mut self.funds)?;
       self.frozen = true;
       Ok(())
     } else {

@@ -2,7 +2,7 @@ use anyhow::{bail, Result};
 use rust_decimal::Decimal;
 use serde::Deserialize;
 
-use crate::Funds;
+use crate::{DisputeStatus, Funds};
 
 #[derive(Debug, Deserialize, PartialEq, Eq, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
@@ -28,14 +28,15 @@ pub struct Transaction {
 pub trait BalanceTransaction {
   fn get_tx_id(&self) -> u32;
   fn get_amount(&self) -> Decimal;
-  fn handle_dispute(&self, funds: &mut Funds);
-  fn handle_resolve(&self, funds: &mut Funds);
-  fn handle_chargeback(&self, funds: &mut Funds);
+  fn dispute(&mut self, funds: &mut Funds) -> Result<()>;
+  fn resolve(&mut self, funds: &mut Funds) -> Result<()>;
+  fn chargeback(&mut self, funds: &mut Funds) -> Result<()>;
 }
 
 pub struct Deposit {
   tx_id: u32,
   amount: Decimal,
+  dispute_status: DisputeStatus,
 }
 
 impl BalanceTransaction for Deposit {
@@ -46,18 +47,24 @@ impl BalanceTransaction for Deposit {
     self.amount
   }
 
-  fn handle_dispute(&self, funds: &mut Funds) {
+  fn dispute(&mut self, funds: &mut Funds) -> Result<()> {
+    self.dispute_status.dispute()?;
     funds.held += self.get_amount();
     funds.available -= self.get_amount();
+    Ok(())
   }
 
-  fn handle_resolve(&self, funds: &mut Funds) {
+  fn resolve(&mut self, funds: &mut Funds) -> Result<()> {
+    self.dispute_status.resolve()?;
     funds.available += self.get_amount();
     funds.held -= self.get_amount();
+    Ok(())
   }
 
-  fn handle_chargeback(&self, funds: &mut Funds) {
+  fn chargeback(&mut self, funds: &mut Funds) -> Result<()> {
+    self.dispute_status.chargeback()?;
     funds.held -= self.get_amount();
+    Ok(())
   }
 }
 
@@ -77,6 +84,7 @@ impl TryInto<Deposit> for Transaction {
       return Ok(Deposit {
         tx_id: self.tx_id,
         amount,
+        dispute_status: DisputeStatus::new(),
       });
     }
     bail!("amount must not be None for deposits")
@@ -86,6 +94,7 @@ impl TryInto<Deposit> for Transaction {
 pub struct Withdrawal {
   tx_id: u32,
   amount: Decimal,
+  dispute_status: DisputeStatus,
 }
 
 impl BalanceTransaction for Withdrawal {
@@ -96,17 +105,23 @@ impl BalanceTransaction for Withdrawal {
     self.amount
   }
 
-  fn handle_dispute(&self, funds: &mut Funds) {
+  fn dispute(&mut self, funds: &mut Funds) -> Result<()> {
+    self.dispute_status.dispute()?;
     funds.held += self.get_amount();
+    Ok(())
   }
 
-  fn handle_resolve(&self, funds: &mut Funds) {
+  fn resolve(&mut self, funds: &mut Funds) -> Result<()> {
+    self.dispute_status.resolve()?;
     funds.available += self.get_amount();
     funds.held -= self.get_amount();
+    Ok(())
   }
 
-  fn handle_chargeback(&self, funds: &mut Funds) {
+  fn chargeback(&mut self, funds: &mut Funds) -> Result<()> {
+    self.dispute_status.chargeback()?;
     funds.held -= self.get_amount();
+    Ok(())
   }
 }
 
@@ -126,6 +141,7 @@ impl TryInto<Withdrawal> for Transaction {
       return Ok(Withdrawal {
         tx_id: self.tx_id,
         amount,
+        dispute_status: DisputeStatus::new(),
       });
     }
     bail!("amount must not be None for withdrawals")
