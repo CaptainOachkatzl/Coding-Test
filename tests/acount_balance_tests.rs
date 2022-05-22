@@ -4,10 +4,11 @@ use rust_decimal::Decimal;
 #[test]
 fn account_balance_deposit_withdrawal_test() {
   let mut account_storage = AccountStorage::new();
-  assert!(TransactionParser::parse_transactions_into_accounts(
+  TransactionParser::parse_transactions_into_accounts(
     "transaction_files/transactions_example.csv",
-    &mut account_storage
-  ));
+    &mut account_storage,
+  )
+  .unwrap();
 
   let funds_client1 = account_storage.get_mut(1).get_funds();
   assert_eq!(funds_client1.get_total(), Decimal::new(15000, 4)); // total: 1.5

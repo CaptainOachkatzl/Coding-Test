@@ -4,10 +4,11 @@ use rust_decimal::Decimal;
 #[test]
 fn valid_deposite_dispute_test() {
   let mut account_storage = AccountStorage::new();
-  assert!(TransactionParser::parse_transactions_into_accounts(
+  TransactionParser::parse_transactions_into_accounts(
     "transaction_files/valid_deposit_disputes.csv",
-    &mut account_storage
-  ));
+    &mut account_storage,
+  )
+  .unwrap();
 
   // disputed
   let funds_client1 = account_storage.get_mut(1).get_funds();
@@ -34,10 +35,11 @@ fn valid_deposite_dispute_test() {
 #[test]
 fn valid_withdrawal_dispute_test() {
   let mut account_storage = AccountStorage::new();
-  assert!(TransactionParser::parse_transactions_into_accounts(
+  TransactionParser::parse_transactions_into_accounts(
     "transaction_files/valid_withdrawal_disputes.csv",
-    &mut account_storage
-  ));
+    &mut account_storage,
+  )
+  .unwrap();
 
   // disputed
   let funds_client1 = account_storage.get_mut(1).get_funds();
@@ -64,10 +66,8 @@ fn valid_withdrawal_dispute_test() {
 #[test]
 fn invalid_dispute_test() {
   let mut account_storage = AccountStorage::new();
-  assert!(TransactionParser::parse_transactions_into_accounts(
-    "transaction_files/invalid_disputes.csv",
-    &mut account_storage
-  ));
+  TransactionParser::parse_transactions_into_accounts("transaction_files/invalid_disputes.csv", &mut account_storage)
+    .unwrap();
 
   // resolved
   let funds_client1 = account_storage.get_mut(1).get_funds();

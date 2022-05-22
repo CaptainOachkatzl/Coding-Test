@@ -17,6 +17,7 @@ fn csv_output_test() {
   TransactionParser::parse_transactions_into_accounts(
     "transaction_files/transactions_example.csv",
     &mut account_storage,
-  );
+  )
+  .unwrap();
   print_output_csv(&account_storage);
 }

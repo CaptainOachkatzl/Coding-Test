@@ -1,3 +1,4 @@
+use anyhow::Result;
 use csv::{Reader, ReaderBuilder};
 use log::error;
 use std::fs::File;
@@ -10,19 +11,14 @@ pub struct TransactionParser {
 }
 
 impl TransactionParser {
-  pub fn parse_transactions_into_accounts(input_file_name: &str, account_storage: &mut AccountStorage) -> bool {
-    let init_result = TransactionParser::initialize(&input_file_name);
-    if let Ok(mut transaction_parser) = init_result {
-      transaction_parser.for_each_parsable_transaction(|transaction| {
-        account_storage
-          .get_mut(transaction.client_id)
-          .add_transaction(transaction);
-      });
-      return true;
-    } else if let Err(err) = init_result {
-      error!("unable to read CSV file: {}", err);
-    }
-    false
+  pub fn parse_transactions_into_accounts(input_file_name: &str, account_storage: &mut AccountStorage) -> Result<()> {
+    let mut transaction_parser = TransactionParser::initialize(&input_file_name)?;
+    transaction_parser.for_each_parsable_transaction(|transaction| {
+      account_storage
+        .get_mut(transaction.client_id)
+        .add_transaction(transaction);
+    });
+    Ok(())
   }
 
   pub fn initialize(file_name: &str) -> std::io::Result<Self> {
