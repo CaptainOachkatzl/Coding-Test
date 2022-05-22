@@ -11,6 +11,7 @@ pub struct TransactionParser {
 }
 
 impl TransactionParser {
+  // high level call that does all the parsing and transaction assigning to accounts in one
   pub fn parse_transactions_into_accounts(input_file_name: &str, account_storage: &mut AccountStorage) -> Result<()> {
     let mut transaction_parser = TransactionParser::initialize(&input_file_name)?;
     transaction_parser.for_each_parsable_transaction(|transaction| {
