@@ -67,7 +67,7 @@ impl Account {
   fn add_transaction_as_converted(&mut self, transaction: Transaction) -> Result<()> {
     match transaction.tx_type {
       TransactionType::Deposit => {
-        self.handle_deposit(transaction.try_into()?)?;
+        self.handle_deposit(transaction.try_into()?);
       }
       TransactionType::Withdrawal => {
         self.handle_withdrawal(transaction.try_into()?)?;
@@ -85,12 +85,9 @@ impl Account {
     Ok(())
   }
 
-  fn handle_deposit(&mut self, deposit: Deposit) -> Result<()> {
-    let amount = deposit.get_amount();
-
-    self.funds.available += amount;
+  fn handle_deposit(&mut self, deposit: Deposit) {
+    self.funds.available += deposit.get_amount();
     self.balance_transactions.insert(deposit.get_tx_id(), Box::new(deposit));
-    Ok(())
   }
 
   fn handle_withdrawal(&mut self, withdrawal: Withdrawal) -> Result<()> {
