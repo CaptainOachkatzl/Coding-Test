@@ -10,6 +10,21 @@ pub struct TransactionParser {
 }
 
 impl TransactionParser {
+  pub fn parse_transactions_into_accounts(input_file_name: &str, account_storage: &mut AccountStorage) -> bool {
+    let init_result = TransactionParser::initialize(&input_file_name);
+    if let Ok(mut transaction_parser) = init_result {
+      transaction_parser.for_each_parsable_transaction(|transaction| {
+        account_storage
+          .get_mut(transaction.client_id)
+          .add_transaction(transaction);
+      });
+      return true;
+    } else if let Err(err) = init_result {
+      error!("unable to read CSV file: {}", err);
+    }
+    false
+  }
+
   pub fn initialize(file_name: &str) -> std::io::Result<Self> {
     let csv_reader = ReaderBuilder::new()
       .trim(csv::Trim::All)
@@ -32,19 +47,4 @@ impl TransactionParser {
       })
       .for_each(action);
   }
-}
-
-pub fn parse_transactions_into_accounts(input_file_name: &str, account_storage: &mut AccountStorage) -> bool {
-  let init_result = TransactionParser::initialize(&input_file_name);
-  if let Ok(mut transaction_parser) = init_result {
-    transaction_parser.for_each_parsable_transaction(|transaction| {
-      account_storage
-        .get_mut(transaction.client_id)
-        .add_transaction(transaction);
-    });
-    return true;
-  } else if let Err(err) = init_result {
-    error!("unable to read CSV file: {}", err);
-  }
-  false
 }

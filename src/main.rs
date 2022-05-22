@@ -15,7 +15,7 @@ fn main() {
   if let Some(input_file) = read_filename_from_args() {
     info!("input file: {}", input_file);
 
-    if !parse_transactions_into_accounts(&input_file, &mut account_storage) {
+    if !TransactionParser::parse_transactions_into_accounts(&input_file, &mut account_storage) {
       error!("csv file could not be read. canceling execution.");
       return;
     }

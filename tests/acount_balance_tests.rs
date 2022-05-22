@@ -1,10 +1,10 @@
-use coding_test::{parse_transactions_into_accounts, AccountStorage};
+use coding_test::{AccountStorage, TransactionParser};
 use rust_decimal::Decimal;
 
 #[test]
 fn account_balance_deposit_withdrawal_test() {
   let mut account_storage = AccountStorage::new();
-  assert!(parse_transactions_into_accounts(
+  assert!(TransactionParser::parse_transactions_into_accounts(
     "transaction_files/transactions_example.csv",
     &mut account_storage
   ));

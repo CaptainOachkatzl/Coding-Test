@@ -1,10 +1,10 @@
-use coding_test::{parse_transactions_into_accounts, AccountStorage};
+use coding_test::{AccountStorage, TransactionParser};
 use rust_decimal::Decimal;
 
 #[test]
 fn valid_deposite_dispute_test() {
   let mut account_storage = AccountStorage::new();
-  assert!(parse_transactions_into_accounts(
+  assert!(TransactionParser::parse_transactions_into_accounts(
     "transaction_files/valid_deposit_disputes.csv",
     &mut account_storage
   ));
@@ -34,7 +34,7 @@ fn valid_deposite_dispute_test() {
 #[test]
 fn valid_withdrawal_dispute_test() {
   let mut account_storage = AccountStorage::new();
-  assert!(parse_transactions_into_accounts(
+  assert!(TransactionParser::parse_transactions_into_accounts(
     "transaction_files/valid_withdrawal_disputes.csv",
     &mut account_storage
   ));
@@ -64,7 +64,7 @@ fn valid_withdrawal_dispute_test() {
 #[test]
 fn invalid_dispute_test() {
   let mut account_storage = AccountStorage::new();
-  assert!(parse_transactions_into_accounts(
+  assert!(TransactionParser::parse_transactions_into_accounts(
     "transaction_files/invalid_disputes.csv",
     &mut account_storage
   ));

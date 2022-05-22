@@ -1,4 +1,4 @@
-use anyhow::{Result, bail};
+use anyhow::{bail, Result};
 
 pub struct DisputeStatus {
   disputed: bool,

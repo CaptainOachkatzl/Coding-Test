@@ -1,4 +1,4 @@
-use coding_test::{parse_transactions_into_accounts, print_output_csv, AccountStorage, TransactionParser};
+use coding_test::{print_output_csv, AccountStorage, TransactionParser};
 
 #[test]
 fn transaction_reader_test() {
@@ -14,6 +14,9 @@ fn transaction_reader_test() {
 #[test]
 fn csv_output_test() {
   let mut account_storage = AccountStorage::new();
-  parse_transactions_into_accounts("transaction_files/transactions_example.csv", &mut account_storage);
+  TransactionParser::parse_transactions_into_accounts(
+    "transaction_files/transactions_example.csv",
+    &mut account_storage,
+  );
   print_output_csv(&account_storage);
 }
