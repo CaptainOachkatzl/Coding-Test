@@ -4,8 +4,8 @@ pub use account::*;
 pub mod account_storage;
 pub use account_storage::*;
 
-pub mod transaction;
-pub use transaction::*;
+pub mod transactions;
+pub use transactions::*;
 
 pub mod transaction_parser;
 pub use transaction_parser::*;
